@@ -10,5 +10,6 @@ export default defineConfig({
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "preview.allowedHosts": ["frontend-production-4876.up.railway.app"]
 })
