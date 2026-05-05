@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://localhost:3000' });
+const api = axios.create({ baseURL: 'https://backend-production-4ccb7.up.railway.app' });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
