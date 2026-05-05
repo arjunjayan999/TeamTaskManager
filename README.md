@@ -1,8 +1,3 @@
-Here’s a clean, professional `README.md` you can use for your project:
-
----
-
-```markdown
 # 🧩 Team Task Manager (Full-Stack)
 
 A minimal full-stack web application for managing team projects and tasks with role-based access control (RBAC).
@@ -224,14 +219,3 @@ Your Name Here
 ## 📄 License
 
 MIT License (or as applicable)
-
-```
-
----
-
-If you want, I can also generate:
-- folder structure + boilerplate
-- Prisma schema
-- API routes
-- or a ready-to-run starter repo 🚀
-```
