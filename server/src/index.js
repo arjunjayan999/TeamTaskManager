@@ -8,7 +8,7 @@ import projectRoutes from './routes/projects.js';
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'https://frontend-production-4876.up.railway.app' }));
 app.use(json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
