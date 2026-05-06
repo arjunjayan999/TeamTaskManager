@@ -72,7 +72,6 @@ export default function TaskList({ project, isAdmin, onUpdate }) {
       {/* Create form */}
       {showForm && (
         <form onSubmit={handleCreate} className="mb-5 border border-gray-200 rounded-lg p-4 space-y-2">
-          {error && <p className="text-xs text-red-500">{error}</p>}
           <input
             placeholder="Task title"
             value={newTitle}
