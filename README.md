@@ -1,3 +1,7 @@
+### To test out the application, sign in with: 
+- email: admin@test.com
+- password: password123
+
 # 🧩 Team Task Manager (Full-Stack)
 
 A minimal full-stack web application for managing team projects and tasks with role-based access control (RBAC).
