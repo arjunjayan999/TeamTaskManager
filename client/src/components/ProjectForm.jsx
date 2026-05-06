@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { getAllUsers, createProject, updateProject } from '../lib/api';
+import { Spinner } from "../components/ui/spinner";
 
 export default function ProjectForm({ initial, onDone, onCancel }) {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: initial?.title ?? '',
     description: initial?.description ?? '',
@@ -10,11 +13,8 @@ export default function ProjectForm({ initial, onDone, onCancel }) {
     priority: initial?.priority ?? 'MEDIUM',
     assigneeIds: initial?.members?.map(m => m.userId) ?? [],
   });
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    getAllUsers().then(setUsers);
-  }, []);
+  useEffect(() => { getAllUsers().then(setUsers); }, []);
 
   const toggleAssignee = (id) => {
     setForm(f => ({
@@ -27,23 +27,26 @@ export default function ProjectForm({ initial, onDone, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setLoading(true);
     try {
       if (initial) {
         await updateProject(initial.id, form);
+        toast.success('Project updated');
       } else {
         await createProject(form);
+        toast.success('Project created');
       }
       onDone();
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong');
+      toast.error(err.response?.data?.error || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="border border-gray-200 rounded-lg p-6 mb-6 bg-white">
       <h2 className="text-sm font-medium mb-4">{initial ? 'Edit project' : 'New project'}</h2>
-      {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           placeholder="Title"
@@ -75,7 +78,6 @@ export default function ProjectForm({ initial, onDone, onCancel }) {
             <option>HIGH</option>
           </select>
         </div>
-
         <div>
           <p className="text-xs text-gray-400 mb-2">Assign members</p>
           <div className="flex flex-wrap gap-2">
@@ -95,12 +97,13 @@ export default function ProjectForm({ initial, onDone, onCancel }) {
             ))}
           </div>
         </div>
-
         <div className="flex gap-2 pt-1">
           <button
             type="submit"
-            className="text-sm bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700"
+            disabled={loading}
+            className="text-sm bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700 flex items-center gap-2 disabled:opacity-60"
           >
+            {loading && <Spinner className="text-white" />}
             {initial ? 'Save changes' : 'Create project'}
           </button>
           <button

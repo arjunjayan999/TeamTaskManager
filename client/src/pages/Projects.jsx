@@ -1,27 +1,41 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { getProjects, deleteProject } from '../lib/api';
 import ProjectForm from '../components/ProjectForm';
+import { Spinner } from "../components/ui/spinner";
 
 export default function Projects() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
 
   const load = async () => {
-    const data = await getProjects();
-    setProjects(data);
+    try {
+      const data = await getProjects();
+      setProjects(data);
+    } catch {
+      toast.error('Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this project?')) return;
-    await deleteProject(id);
-    load();
+    try {
+      await deleteProject(id);
+      toast.success('Project deleted');
+      load();
+    } catch {
+      toast.error('Failed to delete project');
+    }
   };
 
   const handleFormDone = () => {
@@ -29,6 +43,14 @@ export default function Projects() {
     setEditTarget(null);
     load();
   };
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center gap-2 text-sm text-gray-400">
+        <Spinner /> Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -75,12 +97,7 @@ function ProjectCard({ project, isAdmin, onClick, onEdit, onDelete }) {
   const total = project.tasks.length;
   const done = project.tasks.filter(t => t.status === 'DONE').length;
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-
-  const priorityColor = {
-    LOW: 'text-gray-400',
-    MEDIUM: 'text-yellow-500',
-    HIGH: 'text-red-500',
-  }[project.priority];
+  const priorityColor = { LOW: 'text-gray-400', MEDIUM: 'text-yellow-500', HIGH: 'text-red-500' }[project.priority];
 
   return (
     <div
@@ -104,20 +121,15 @@ function ProjectCard({ project, isAdmin, onClick, onEdit, onDelete }) {
           )}
         </div>
       </div>
-
       <div className="mt-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-400">{done}/{total} tasks</span>
           <span className="text-xs text-gray-400">{pct}%</span>
         </div>
         <div className="h-1 bg-gray-100 rounded-full">
-          <div
-            className="h-1 bg-gray-900 rounded-full transition-all"
-            style={{ width: `${pct}%` }}
-          />
+          <div className="h-1 bg-gray-900 rounded-full transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
-
       {project.members.length > 0 && (
         <div className="mt-2 flex gap-1 flex-wrap">
           {project.members.map(m => (

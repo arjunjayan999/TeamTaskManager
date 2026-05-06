@@ -34,6 +34,44 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /projects/dashboard/stats
+router.get('/dashboard/stats', async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const role = req.user.role;
+
+    // Scope to projects this user can see
+    const projectFilter = role === 'ADMIN'
+      ? { createdById: userId }
+      : { members: { some: { userId } } };
+
+    const [total, completed, pending, overdue] = await Promise.all([
+      prisma.task.count({
+        where: { project: projectFilter },
+      }),
+      prisma.task.count({
+        where: { project: projectFilter, status: 'DONE' },
+      }),
+      prisma.task.count({
+        where: { project: projectFilter, status: { in: ['TODO', 'IN_PROGRESS'] } },
+      }),
+      prisma.task.count({
+        where: {
+          project: {
+            ...projectFilter,
+            dueDate: { lt: new Date() },
+          },
+          status: { not: 'DONE' },
+        },
+      }),
+    ]);
+
+    res.json({ total, completed, pending, overdue });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const project = await prisma.project.findUnique({

@@ -5,6 +5,7 @@ dotenv.config()
 
 import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
+import taskRoutes from './routes/tasks.js';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(json());
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
+app.use('/projects/:projectId/tasks', taskRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
